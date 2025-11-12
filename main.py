@@ -498,7 +498,7 @@ async def create_credit_report(request: ReportGenerateRequest = ReportGenerateRe
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
-@app.post("/api/reports/generate-unlimited")
+@app.get("/api/reports/generate-unlimited")
 async def generate_unlimited_reports(
     count: int = Query(..., ge=1),
     bureau: Bureau = Bureau.ALL,
