@@ -461,11 +461,10 @@ def generate_credit_reports(request: ReportGenerateRequest):
                 profile_range, profile_data, current_addr, former_addr, num_accounts
             )
         
-        report.update({
-            "reportId": report_id,
-            "generatedDate": datetime.now().isoformat(),
-            "creditProfile": profile_range
-        })
+        # Add metadata without overwriting existing structure
+        report["reportId"] = report_id
+        report["generatedDate"] = datetime.now().isoformat()
+        report["riskProfile"] = profile_range  # Use different key name to avoid conflicts
         
         credit_reports_db[report_id] = report
         reports[bureau.value] = report_id
@@ -498,7 +497,7 @@ async def create_credit_report(request: ReportGenerateRequest = ReportGenerateRe
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
-@app.get("/api/reports/generate-unlimited")
+@app.post("/api/reports/generate-unlimited")
 async def generate_unlimited_reports(
     count: int = Query(..., ge=1),
     bureau: Bureau = Bureau.ALL,
@@ -586,7 +585,7 @@ async def get_random_report_simple(bureau: Optional[str] = None):
         "report_id": random_id,
         "bureau": report.get("bureau"),
         "generated_date": report.get("generatedDate"),
-        "credit_profile": report.get("creditProfile"),
+        "risk_profile": report.get("riskProfile"),
         "url": f"/api/reports/{random_id}"
     }
 
@@ -628,7 +627,7 @@ async def get_random_reports_batch(
             "report_id": rid,
             "bureau": report.get("bureau"),
             "generated_date": report.get("generatedDate"),
-            "credit_profile": report.get("creditProfile")
+            "risk_profile": report.get("riskProfile")
         })
     
     return {
